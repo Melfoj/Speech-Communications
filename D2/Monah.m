@@ -1,6 +1,6 @@
-
+clc; clear all; close all;
 %% Ucitavanje signala
-[x,fs] = audioread('recenica22.wav');
+[x,fs] = audioread('Audio\recenica22.wav');
 
 %% Obrada
 

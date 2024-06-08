@@ -1,122 +1,122 @@
 clear all, close all, clc
 
-%% Ucitt
+%% Ucitavanje fajlova
 
-bp = 20;
-MFCCm = [];
+C = 12;
+frame_count = 20;
+MFCC_matrix = [];
 
-%% MB
+%% Mala baza
 
-i1 = 5;
-i2 = 40;
-for br1 = 1:i1
-    for br2 = i2-4:i2
-        filename = sprintf('Mala_baza/broj_%d_%d.wav', br1, br2);
-        [sig fs] = audioread(filename);
-        Tw = (length(sig)*1000)/(bp*fs);
-        MFCCv = emefefce(Tw, sig, fs);
-        MFCCm = [MFCCm; MFCCv];
+a = 5;
+b = 40;
+for br1 = 1:a
+    for br2 = b-4:b
+        file_name = sprintf('Mala_baza/broj_%d_%d.wav', br1, br2);
+        [y fs] = audioread(file_name);
+        Tw = (length(y)*1000)/(frame_count*fs);
+        MFCC_vector = probamfcc(Tw, C, y, fs);
+        MFCC_matrix = [MFCC_matrix; MFCC_vector];
     end
 end
 
-MFCCc = [];
-Ist = [];
+MFCC_compare = [];
+Threshold = [];
 
-for i = 1:25
-    for j = 1:25
-        d = norm(MFCCm(i,:)-MFCCm(j,:));
-        MFCCc(i,j) = d;
-        if d<215
-            Ist(i,j) = 1;
+for i = 1:5*5
+    for j = 1:5*5
+        d = norm(MFCC_matrix(i,:)-MFCC_matrix(j,:));
+        MFCC_compare(i,j) = d;
+        if d<185
+            Threshold(i,j) = 1;
         else
-            Ist(i,j) = 0;
+            Threshold(i,j) = 0;
         end
     end
 end
 
-%% Uspeh
-Succ = zeros(1,round(max(MFCCc,[],'all')));
+%Zavisnost uspeha od praga
+Success_rate = zeros(1,round(max(MFCC_compare,[],'all')));
 
-for k = 1:round(max(MFCCc,[],'all'))
+for k = 1:round(max(MFCC_compare,[],'all'))
     for i = 1:5*5
         for j = 1:5*5
-            d = norm(MFCCm(i,:)-MFCCm(j,:));
-            MFCCc(i,j) = d;
+            d = norm(MFCC_matrix(i,:)-MFCC_matrix(j,:));
+            MFCC_compare(i,j) = d;
             if d<k
-                Succ(k) = Succ(k) + 1;
+                Success_rate(k) = Success_rate(k) + 1;
             end
         end
     end
 end
 
-Succ = Succ/625;
-figure(1), plot(1-Succ);
+Success_rate = Success_rate/625;
+figure(1), plot(1-Success_rate);
 
-figure(2), surf(MFCCc, 'EdgeColor','none'), colorbar, view(2), colormap jet;
+figure(2), surf(MFCC_compare, 'EdgeColor','none'), colorbar, view(2), colormap jet;
 
-figure(3), surf(Ist, 'EdgeColor','none'), colorbar, view(2), colormap jet;
+figure(3), surf(Threshold, 'EdgeColor','none'), colorbar, view(2), colormap jet;
+%% Velika baza 
 
-%% VB
-
-i1 = 5;
-i2 = 125;
-i12=i1*i2;
-for br1 = 1:i1
-    for br2 = 1:i2
-        filename = sprintf('Velika_baza/broj_%d_%d.wav', br1, br2);
-        [sig fs] = audioread(filename);
-        Tw = (length(sig)*1000)/(bp*fs);
-        MFCCv = emefefce(Tw, sig, fs);
-        MFCCm = [MFCCm; MFCCv];
+a = 5;
+b = 125;
+for br1 = 1:a
+    for br2 = 1:b
+        file_name = sprintf('Velika_baza/broj_%d_%d.wav', br1, br2);
+        [y fs] = audioread(file_name);
+        Tw = (length(y)*1000)/(frame_count*fs);
+        MFCC_vector = probamfcc(Tw, C, y, fs);
+        MFCC_matrix = [MFCC_matrix; MFCC_vector];
     end
 end
 
-MFCCc = [];
-Ist = [];
+MFCC_compare = [];
+Threshold = [];
 
-for i = 1:i12
-    for j = 1:i12
-        d = norm(MFCCm(i,:)-MFCCm(j,:));
-        MFCCc(i,j) = d;
-        if d<220
-            Ist(i,j) = 1;
+for i = 1:a*b
+    for j = 1:a*b
+        d = norm(MFCC_matrix(i,:)-MFCC_matrix(j,:));
+        MFCC_compare(i,j) = d;
+        if d<202
+            Threshold(i,j) = 1;
         else
-            Ist(i,j) = 0;
+            Threshold(i,j) = 0;
         end
     end
 end
 
-%% Uspeh
-Succ = zeros(1,round(max(MFCCc,[],'all')));
+%Zavisnost uspeha od praga
+Success_rate = zeros(1,round(max(MFCC_compare,[],'all')));
 
-for k = 1:round(max(MFCCc,[],'all'))
-    for i = 1:i12
-        for j = 1:i12
-            d = norm(MFCCm(i,:)-MFCCm(j,:));
-            MFCCc(i,j) = d;
+for k = 1:round(max(MFCC_compare,[],'all'))
+    for i = 1:5*5
+        for j = 1:5*5
+            d = norm(MFCC_matrix(i,:)-MFCC_matrix(j,:));
+            MFCC_compare(i,j) = d;
             if d<k
-                Succ(k) = Succ(k) + 1;
+                Success_rate(k) = Success_rate(k) + 1;
             end
         end
     end
 end
 
-Succ = Succ/(i12*i12);
-figure(4), plot(1-Succ);
+Success_rate = Success_rate/(a*b);
+figure(4), plot(1-Success_rate);
 
-figure(5), surf(MFCCc,'EdgeColor','none'), colorbar, view(2), colormap jet;
+figure(5), surf(MFCC_compare,'EdgeColor','none'), colorbar, view(2), colormap jet;
 
-figure(6), surf(Ist, 'EdgeColor','none'), colorbar, view(2), colormap jet;
+figure(6), surf(Threshold, 'EdgeColor','none'), colorbar, view(2), colormap jet;
 
-%% MFCC
-function MFFCv = emefefce(Tw, speech, fs)
+%% MFCC Funkcija
+function MFCC_vektor = probamfcc(Tw, C, speech, fs)
 
 
+    Tw;             % duzina prozora (ms)
     Ts=Tw/2;        % preklapanje (ms)
     alpha=0.97;     % preemphasis koeficijent
     R=[300 3700];   %frekvencijski opseg
     M=30;           % broj filtara u banci
-    C=12;           % broj kepstralnih koeficijenata
+    C;              % broj kepstralnih koeficijenata
     L=22;           % cepstral sine lifter parametar
 
     % Hamingov prozor
@@ -130,6 +130,6 @@ function MFFCv = emefefce(Tw, speech, fs)
     end
      
     % "Prepakivanje" MFCC matrice
-    MFFCv = reshape(MFCCs,1,size(MFCCs,1)*size(MFCCs,2));
+    MFCC_vektor = reshape(MFCCs,1,size(MFCCs,1)*size(MFCCs,2));
 
 end

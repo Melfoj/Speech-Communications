@@ -9,7 +9,7 @@ MFCC_matrix = [];
 %% Mala baza
 
 a = 5;
-b = 45;
+b = 40;
 for br1 = 1:a
     for br2 = b-4:b
         file_name = sprintf('Mala_baza/broj_%d_%d.wav', br1, br2);

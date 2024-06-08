@@ -1,15 +1,8 @@
 clear all, close all, clc
-pkg load signal
-%racunanje ZCR
-function z=zcr(x)
-  z=0;
-    for i=1:length(x)-1
-      z=z+abs(sign(x(i))-sign(x(i+1)))/2;
-    end
-end
-
+%% Promenljive
 %ucitavanje i sredjivanje signala
-[x, fs] = audioread('recenica22.wav');
+[x,fs] = audioread('Audio\recenica22.wav');
+
 DC=mean(x);
 x=x-DC;%jednosmerna komponenta
 n=max(abs(x));
@@ -41,7 +34,7 @@ M=50;
 N=2*M;
 h=fir1(N, [wn1 wn2], rectwin(N+1));
 
-%popunjavanje nizova
+%% Popunjavanje nizova
 for i = 1:(a/2):length(x)-a
    y = x(i:i+a -1);
    RMS(end+1) = 20*log10(rms(y)/p0);
@@ -49,9 +42,10 @@ for i = 1:(a/2):length(x)-a
    if ZCR(end)<=Pzcr && RMS(end)>=Pe
       Z(end+1)=1;
       y1 = filter(h, 1, y);
-      [p, loc] = findpeaks(xcorr(y1), "DoubleSided");
-      
-      f0(end+1) = fs/(2*(loc(find(p == max(p)))-loc(find(p == max(p))-4)));
+      %[p, loc] = findpeaks(xcorr(y1), "DoubleSided");
+      [p, loc] = findpeaks(xcorr(y1), 'MinPeakDistance', 200);
+      pmax = find(p == max(p));
+      f0(end+1) = fs/(2*(loc(pmax)-loc(pmax-1)));
    else
       Z(end+1)=0;
       f0(end+1)=0;
@@ -59,7 +53,9 @@ for i = 1:(a/2):length(x)-a
 end
 
 r = 0:t/2:(length(RMS)-1)*t/2;
-%iscrtavanje
+%% Iscrtavanje
+figure, plot(op,x,r,RMS/max(RMS),r,Z/max(Z),r,ZCR/max(ZCR))
+title("RMS,ZCR,Zvucnost")
 figure, plot(r, RMS)
 title("RMS")
 figure, plot(r, ZCR)
@@ -69,3 +65,11 @@ ylim([-1.1 1.1])
 title("Zvucnost")
 figure,plot(r, f0)
 title("f0")
+
+%% Racunanje ZCR
+function z=zcr(x)
+  z=0;
+    for i=1:length(x)-1
+      z=z+abs(sign(x(i))-sign(x(i+1)))/2;
+    end
+end

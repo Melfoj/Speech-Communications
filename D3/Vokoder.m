@@ -1,8 +1,8 @@
 clear all, close all, clc
 
-%ucitavanje i sredjivanje signala
-[x, fs] = audioread('recenica 22.wav');
-f0 = load('f0_recenica 22.mat');
+%% Ucitavanje i sredjivanje signala
+[x,fs]=audioread("Audio\recenica22.wav");
+f0 = load('Recenice_f0\f0_recenica 22.mat');
 f0 = f0.f0;
 DC=mean(x);
 x=x-DC;%jednosmerna komponenta
@@ -15,7 +15,7 @@ p0 = 2*10^-5;
 L = 20*log10(L/p0);
 t = 0.03;
 
-%filtar
+%% Filtar
 wn1=80/(fs/2);
 wn2=300/(fs/2);
 M=50;
@@ -23,15 +23,15 @@ N=2*M;
 h=fir1(N, [wn1 wn2], rectwin(N+1));
 
 R=fix(t*fs)/2;
-kikoman=[];
+zvucnost=[];
 izl = [];
 loc=1;
-
+%% Zvucnost i simulacija
 for i = 1:length(f0)
     pobuda=zeros(1,R);
   if loc>R
       while loc>R
-        kikoman=[kikoman zeros(1,R)];
+        zvucnost=[zvucnost zeros(1,R)];
         loc=loc-R;
         i=i+1;
       end
@@ -68,7 +68,7 @@ for i = 1:length(f0)
         end
     end
   end
-  kikoman=[kikoman pobuda];
+  zvucnost=[zvucnost pobuda];
 end
 
 for i = 1:R:length(x)-2*R
@@ -79,8 +79,8 @@ for i = 1:R:length(x)-2*R
    p = 50;
    [A, G] = autolpc(ham, p);
    
-   Gain = G/(sqrt(sum(kikoman(i:i+R-1).^2))+0.01); 
-   med(i:i+R-1) = filter(Gain, A, kikoman(i:i+R-1));
+   Gain = G/(sqrt(sum(zvucnost(i:i+R-1).^2))+0.01); 
+   med(i:i+R-1) = filter(Gain, A, zvucnost(i:i+R-1));
    izl = [izl med(i:i+R-1)];
    
 end
@@ -89,9 +89,9 @@ r = 0:t/2:(length(f0)-1)*t/2;
 io = 0:T:(length(izl)-1)*T;
 op= T:T:length(x)*T;
 
-%iscrtavanje
-figure,plot(kikoman);
-figure, plot(io, izl, op, x);
-
+%% Iscrtavanje
+figure,plot(zvucnost), title("Zvucnost");
+figure, plot(io, izl, op, x), title("Original i simulacija");
+%% Reprodukcija
 player = audioplayer (izl, fs, 16);
 play (player);
